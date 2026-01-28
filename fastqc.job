@@ -1,0 +1,22 @@
+# /bin/sh 
+# ----------------Parameters---------------------- #
+#$  -S /bin/sh
+#$ -q sThC.q
+#$ -l mres=5G,h_data=5G,h_vmem=5G
+#$ -cwd
+#$ -j y
+#$ -N fastqc_MDBC2024_post
+#$ -o logs/fastqc_MDBC2024_post.log
+#$ -m bea
+#$ -M lealc@si.edu
+#
+# ----------------Modules------------------------- #
+module load bioinformatics/fastqc
+#
+# ----------------Your Commands------------------- #
+#
+echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
+#
+fastqc /scratch/nmnh_mdbc/lealc/raw_data/25260-01-09042025_161954/clean_fastq/*.fastq.gz
+#
+echo = `date` job $JOB_NAME done

@@ -1,0 +1,44 @@
+# /bin/sh 
+# ----------------Parameters---------------------- #
+#$  -S /bin/sh
+#$ -pe mthread 16
+#$ -q mThM.q
+#$ -l mres=200G,h_data=200G,h_vmem=200G,himem
+#$ -cwd
+#$ -j y
+#$ -N assemble-spades_2024
+#$ -o logs/spades_2024.log
+#$ -m bea
+#$ -l ssd_res=200G -v SSD_SAVE_MAX=0
+#
+# ----------------Modules------------------------- #
+module load bioinformatics/spades/3.15.5
+module load tools/ssd
+#
+# ----------------Your Commands------------------- #
+#
+echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
+echo + NSLOTS = $NSLOTS
+#
+# Go to the folder you want your output
+
+cd /scratch/nmnh_mdbc/lealc/raw_data/25260-01-09042025_161954/spades
+
+# Iterate over all _R1_ files 
+for READ1 in  /scratch/nmnh_mdbc/lealc/raw_data/25260-01-09042025_161954/clean_fastq/concat/*_R1.fastq.gz; do
+    # Replace _R1_ with _R2_ to find the matching read2 file
+    READ2=${READ1/_R1/_R2}
+    # Replace _R1_ with _R0_ to find the matching read0 file
+    READ0=${READ1/_R1/_R0}
+
+    # Extract the sample name (remove path and suffix)
+    BASENAME=$(basename "$READ1" | sed 's/_R1//')
+
+    echo "Processing sample $BASENAME..."
+
+    spades.py --meta -1 "$READ1" -2 "$READ2" -s "$READ0" -o "$BASENAME"_spades --tmp-dir $SSD_DIR -m 128 -t $NSLOTS
+done
+#
+echo = `date` job $JOB_NAME done
+
+
